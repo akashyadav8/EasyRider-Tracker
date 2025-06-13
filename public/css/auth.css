@@ -1,0 +1,406 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --primary: #4ADE80;
+    --primary-dark: #22C55E;
+    --secondary: #1E82D9;
+    --background: #111827;
+    --text: #F3F4F6;
+    --error: #EF4444;
+    --gradient-start: #4ADE80;
+    --gradient-end: #1E82D9;
+    --card-bg: rgba(17, 24, 39, 0.85);
+    --glass-bg: rgba(255, 255, 255, 0.1);
+    --glass-border: rgba(255, 255, 255, 0.2);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    background-image: url('../img/backgrounds/login-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Animated background overlay */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, 
+        rgba(74, 222, 128, 0.3), 
+        rgba(30, 130, 217, 0.3),
+        rgba(74, 222, 128, 0.2)
+    );
+    animation: gradientShift 15s ease infinite;
+    z-index: 1;
+    backdrop-filter: blur(5px);
+}
+
+/* Floating particles */
+body::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 30%, rgba(74, 222, 128, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(30, 130, 217, 0.1) 0%, transparent 50%);
+    animation: particleFloat 20s ease-in-out infinite;
+    z-index: 2;
+}
+
+.auth-container {
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    z-index: 10;
+    animation: fadeIn 0.8s ease-out;
+}
+
+.auth-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+    border-radius: 24px;
+    padding: 2px;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: borderGlow 2s ease-in-out infinite;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(12px);
+    padding: 32px;
+    border-radius: 24px;
+    box-shadow: 
+        0 10px 25px rgba(0, 0, 0, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+.auth-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 
+        0 15px 30px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 32px;
+    position: relative;
+}
+
+.location-icon {
+    animation: float 3s ease-in-out infinite;
+    color: var(--primary);
+    filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.5));
+}
+
+h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 32px;
+    color: var(--text);
+    position: relative;
+    display: inline-block;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 60px;
+    height: 4px;
+    background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+    border-radius: 2px;
+    animation: widthGrow 0.6s ease-out forwards;
+}
+
+.form-group {
+    margin-bottom: 24px;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    opacity: 0.9;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.input-group {
+    position: relative;
+}
+
+.input-group i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text);
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    font-size: 18px;
+}
+
+input {
+    width: 100%;
+    padding: 16px 16px 16px 48px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    font-size: 16px;
+    color: var(--text);
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input:focus {
+    outline: none;
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary);
+    box-shadow: 
+        0 0 0 3px rgba(74, 222, 128, 0.1),
+        inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+input:focus + i {
+    color: var(--primary);
+    opacity: 1;
+    transform: translateY(-50%) scale(1.1);
+}
+
+.form-actions {
+    margin-top: 36px;
+}
+
+.btn-primary {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(45deg, var(--gradient-start), var(--gradient-end));
+    color: var(--background);
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    transition: 0.5s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+}
+
+.btn-primary:hover::before {
+    left: 100%;
+}
+
+.btn-primary:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 10px rgba(74, 222, 128, 0.3);
+}
+
+.auth-footer {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text);
+    opacity: 0.8;
+}
+
+.auth-footer a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.auth-footer a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--gradient-start), var(--gradient-end));
+    transition: width 0.3s ease;
+}
+
+.auth-footer a:hover {
+    color: var(--gradient-end);
+}
+
+.auth-footer a:hover::after {
+    width: 100%;
+}
+
+.auth-error {
+    margin-top: 20px;
+    padding: 12px;
+    color: var(--error);
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    font-size: 14px;
+    text-align: center;
+    display: none;
+    animation: shake 0.5s ease-in-out;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.auth-error.visible {
+    display: block;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes gradientShift {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes borderGlow {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    75% {
+        transform: translateX(5px);
+    }
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0) rotate(0deg);
+    }
+    50% {
+        transform: translateY(-10px) rotate(5deg);
+    }
+}
+
+@keyframes particleFloat {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    50% {
+        transform: translate(20px, 20px);
+    }
+}
+
+@keyframes widthGrow {
+    from {
+        width: 0;
+    }
+    to {
+        width: 60px;
+    }
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 24px;
+    }
+    
+    h2 {
+        font-size: 24px;
+    }
+    
+    .logo {
+        font-size: 20px;
+    }
+} 

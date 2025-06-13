@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyRider - Dashboard</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="./css/fontawesome/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="dashboard-nav">
+            <div class="logo">
+                <svg class="location-icon" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="#4ADE80" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                </svg>
+                <span>EasyRider</span>
+            </div>
+            <div class="user-profile-nav">
+                <span id="userDisplayName">Welcome back, <%= username %>!</span>
+                <button id="navLogoutBtn" class="nav-logout-btn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <div class="dashboard-content">
+            <h1 class="dashboard-title">Dashboard</h1>
+            
+            <div class="dashboard-sections">
+                <div class="section-left">
+                    <div class="section-header">
+                        <h2>Your Groups</h2>
+                        <button id="createNewGroupBtn" class="action-button">
+                            <i class="fas fa-plus"></i> Create New Group
+                        </button>
+                    </div>
+                    
+                    <div class="groups-list" id="userGroupsList">
+                        <% if (groups && groups.length > 0) { %>
+                            <% groups.forEach(function(group) { %>
+                                <div class="group-card" data-group-id="<%= group.id %>">
+                                    <div class="group-card-header">
+                                        <div class="group-icon">
+                                            <%= group.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <div class="group-info">
+                                            <h3><%= group.name %></h3>
+                                            <p><%= group.members.length %> members</p>
+                                        </div>
+                                    </div>
+                                    <div class="group-card-actions">
+                                        <button class="view-group-btn" data-group-id="<%= group.id %>">
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+                                        <button class="join-tracking-btn" data-group-id="<%= group.id %>">
+                                            <i class="fas fa-map-marker-alt"></i> Join
+                                        </button>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i class="fas fa-users-slash"></i>
+                                <p>You haven't joined any groups yet.</p>
+                                <button id="emptyStateCreateBtn" class="action-button">Create Your First Group</button>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+                
+                <div class="section-right">
+                    <div class="section-header">
+                        <h2>Quick Actions</h2>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <div class="action-card" id="createGroupAction">
+                            <i class="fas fa-users"></i>
+                            <span>Create a new group</span>
+                        </div>
+                        <div class="action-card" id="shareLocationAction">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Share your location</span>
+                        </div>
+                        <div class="action-card" id="updateProfileAction">
+                            <i class="fas fa-user-edit"></i>
+                            <span>Update your profile</span>
+                        </div>
+                    </div>
+                    
+                    <div class="section-header">
+                        <h2>Available Groups</h2>
+                    </div>
+                    
+                    <div class="available-groups" id="availableGroupsList">
+                        <% if (availableGroups && availableGroups.length > 0) { %>
+                            <% availableGroups.forEach(function(group) { %>
+                                <div class="group-preview-card" data-group-id="<%= group.id %>">
+                                    <div class="group-preview-info">
+                                        <h3><%= group.name %></h3>
+                                        <p>Created by <%= group.creatorName %></p>
+                                        <div class="group-stats">
+                                            <div class="stat-item">
+                                                <span class="stat-value"><%= group.members.length %></span>
+                                                <span class="stat-label">Members</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-value online"><%= group.onlineMembers || 0 %></span>
+                                                <span class="stat-label">Online</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="group-preview-actions">
+                                        <button class="view-details-btn" data-group-id="<%= group.id %>">
+                                            <i class="fas fa-info-circle"></i> Details
+                                        </button>
+                                        <button class="join-group-btn" data-group-id="<%= group.id %>">
+                                            <i class="fas fa-user-plus"></i> Join
+                                        </button>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="empty-state">
+                                <i class="fas fa-globe-americas"></i>
+                                <p>No public groups available to join.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Group Details Modal -->
+    <div id="groupDetailsModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="detailsGroupName">Group Details</h2>
+                <button class="close-modal-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="groupDetailsContent">
+                    <!-- Will be filled dynamically -->
+                </div>
+                
+                <div class="modal-actions">
+                    <button id="joinGroupFromDetails" class="confirm-btn">
+                        <i class="fas fa-user-plus"></i> Join Group
+                    </button>
+                    <button class="decline-btn close-modal-btn">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create a New Group</h2>
+                <button class="close-modal-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="groupName">Group Name</label>
+                    <input type="text" id="groupName" class="form-input" placeholder="Enter group name">
+                </div>
+                
+                <button id="createGroupBtn" class="create-group-btn">
+                    <i class="fas fa-users"></i> Create Group
+                </button>
+                
+                <div class="or-divider">
+                    <span>OR</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="joinGroupId">Join Existing Group</label>
+                    <input type="text" id="joinGroupId" class="form-input" placeholder="Enter group ID or paste invite link">
+                </div>
+                
+                <div class="button-group">
+                    <button id="joinExistingGroupBtn" class="join-group-btn">
+                        <i class="fas fa-user-plus"></i> Join Group
+                    </button>
+                </div>
+                
+                <div id="groupCreatedSection" class="group-created-section hidden">
+                    <h3>Share Group Link</h3>
+                    <div class="share-link-input">
+                        <input type="text" id="groupShareLink" class="form-input" readonly>
+                        <button id="copyGroupLinkBtn" class="copy-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <p class="share-hint">Share this link with others to join your group</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html> 

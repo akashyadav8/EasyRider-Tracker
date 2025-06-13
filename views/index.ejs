@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyRider - Real-Time Tracking</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""/>
+    
+    <!-- Leaflet Routing Machine CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="./css/fontawesome/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/chat-launcher.css">
+    <link rel="stylesheet" href="./css/chatbox.css">
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="overlay"></div>
+        <nav class="navbar">
+            <div class="logo">
+                <svg class="location-icon" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="#4ADE80" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+                </svg>
+                <span>EasyRider</span>
+            </div>
+            <div class="auth-buttons">
+                <div id="welcomeMessage" class="welcome-message">
+                    <!-- Will be filled by JavaScript -->
+                </div>
+            </div>
+        </nav>
+
+        <div class="hero-content">
+            <h1 class="main-title">Real-Time Location Tracking</h1>
+            <p class="subtitle">Track distances between users with live updates</p>
+            <button id="startTrackingBtn" class="cta-button">
+                Start Tracking
+                <svg class="arrow-icon" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="currentColor" d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                </svg>
+            </button>
+            
+            <!-- Feature Cards -->
+            <div class="feature-cards">
+                <div class="feature-card" id="createGroupCard">
+                    <div class="feature-icon blue">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Create Groups</h3>
+                    <p>Create and share groups with others to track activities together.</p>
+                    <button id="joinGroupBtn" class="join-group-btn">
+                        <i class="fas fa-user-plus"></i> Join Group
+                    </button>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon green">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>Track Activities</h3>
+                    <p>View live locations and track group activities in real-time.</p>
+                    <button id="viewRouteMapBtn" class="view-map-btn">
+                        <i class="fas fa-route"></i> View Route Map
+                    </button>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon purple">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Stay Connected</h3>
+                    <p>Chat and coordinate with your group members anytime.</p>
+                    <button id="openChatBtn" class="chat-btn ai-assist-btn">
+                        <img src="./img/icon/brain-icon.png" alt="AI Icon" class="ai-icon">
+                        <span class="btn-text">Open Group Chat</span>
+                    </button>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon skyblue">
+                        <i class="fas fa-cloud-sun"></i>
+                    </div>
+                    <h3>Weather Report</h3>
+                    <p>Get the latest weather updates for your location.</p>
+                    <button id="showWeatherBtn" class="weather-btn">
+                        <i class="fas fa-cloud"></i> Show Weather Report
+                    </button>
+                </div>
+            </div>
+            
+            <button id="goDashboardBtn" class="dashboard-button">
+                Go to Dashboard
+            </button>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="map-section hidden">
+        <button class="back-to-home" onclick="backToHome()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M19 12H5M12 19L5 12L12 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+        </button>
+        
+        <div id="map"></div>
+        
+        <div class="controls">
+            <!-- Users Panel -->
+            <div class="users-panel">
+                <h3><i class="fas fa-users"></i> Connected Users (<span id="usersCount">0</span>)</h3>
+                <div id="usersList" class="users-list"></div>
+            </div>
+            
+            <!-- Distance Panel -->
+            <div id="distancePanel" class="distance-panel hidden">
+                <h3><i class="fas fa-route"></i> Distance to <span id="targetUserName"></span></h3>
+                <div class="distance-metrics">
+                    <div class="distance-metric">
+                        <span class="metric-value" id="straightDistance">--</span>
+                        <span class="metric-label">Straight-line</span>
+                    </div>
+                    <div class="distance-metric">
+                        <span class="metric-value" id="routeDistance">--</span>
+                        <span class="metric-label">Route</span>
+                    </div>
+                </div>
+                <button id="closeDistancePanel" class="close-btn">
+                    <i class="fas fa-times"></i> Close
+                </button>
+            </div>
+            
+            <!-- Main Control -->
+            <div id="locationStatus" class="status-card hidden"></div>
+            <button id="liveLocationBtn" class="location-btn">
+                <span class="button-content">Start Tracking</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Route Map Modal -->
+    <div id="routeMapModal" class="modal hidden">
+        <div class="modal-content map-modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-route"></i> Interactive Map with Directions</h2>
+                <button class="close-modal-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="route-search-panel">
+                    <div id="stepContainer" class="step-container">
+                        <!-- Step 1: Enter start location -->
+                        <div id="step1Form" class="step-form">
+                            <div class="form-group">
+                                <label for="startPointSearch">Starting Point</label>
+                                <div class="search-input-container">
+                                    <input type="text" id="startPointSearch" class="form-input" placeholder="Enter starting location">
+                                    <button id="searchStartBtn" class="search-btn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="step-actions">
+                                <div id="startLocationError" class="error-message hidden"></div>
+                                <span class="step-indicator">Step 1 of 2</span>
+                            </div>
+                            <select id="startLocation" class="form-input hidden">
+                                <option value="">Select starting point</option>
+                                <!-- Will be filled dynamically -->
+                            </select>
+                        </div>
+
+                        <!-- Step 2: Enter destination -->
+                        <div id="step2Form" class="step-form hidden">
+                            <div class="form-group">
+                                <label for="destinationSearch">Destination</label>
+                                <div class="search-input-container">
+                                    <input type="text" id="destinationSearch" class="form-input" placeholder="Enter destination">
+                                    <button id="searchDestBtn" class="search-btn">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="step-actions">
+                                <div id="destinationError" class="error-message hidden"></div>
+                                <span class="step-indicator">Step 2 of 2</span>
+                                <button id="backToStep1" class="back-step-btn">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </button>
+                            </div>
+                            <select id="endLocation" class="form-input hidden">
+                                <option value="">Select destination</option>
+                                <!-- Will be filled dynamically -->
+                            </select>
+                        </div>
+
+                        <!-- Step 3: Route summary -->
+                        <div id="step3Summary" class="step-form hidden">
+                            <div class="route-summary">
+                                <div class="location-card">
+                                    <h4>Starting Point:</h4>
+                                    <p id="startPointLabel"></p>
+                                </div>
+                                <div class="location-card">
+                                    <h4>Destination:</h4>
+                                    <p id="destinationLabel"></p>
+                                </div>
+                                <div class="route-actions">
+                                    <button id="resetRouteBtn" class="reset-route-btn">
+                                        <i class="fas fa-redo"></i> Reset
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="routeMap" class="route-map"></div>
+                <div id="searchSpinner" class="search-spinner hidden">
+                    <div class="spinner-container">
+                        <div class="spinner"></div>
+                        <span>Searching location...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Group Modal -->
+    <div id="createGroupModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create a New Group</h2>
+                <button class="close-modal-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="groupName">Group Name</label>
+                    <input type="text" id="groupName" class="form-input" placeholder="Enter group name">
+                </div>
+                
+                <button id="createGroupBtn" class="create-group-btn">
+                    <i class="fas fa-users"></i> Create Group
+                </button>
+                
+                <div class="or-divider">
+                    <span>OR</span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="joinGroupId">Join Existing Group</label>
+                    <input type="text" id="joinGroupId" class="form-input" placeholder="Enter group ID or paste invite link">
+                </div>
+                
+                <div class="button-group">
+                    <button id="joinExistingGroupBtn" class="join-group-btn">
+                        <i class="fas fa-user-plus"></i> Join Group
+                    </button>
+                </div>
+                
+                <div id="groupCreatedSection" class="group-created-section hidden">
+                    <h3>Share Group Link</h3>
+                    <div class="share-link-input">
+                        <input type="text" id="groupShareLink" class="form-input" readonly>
+                        <button id="copyGroupLinkBtn" class="copy-btn"><i class="fas fa-copy"></i></button>
+                    </div>
+                    <p class="share-hint">Share this link with others to join your group</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Chat Modal -->
+    <div id="groupChatModal" class="modal hidden">
+        <div class="modal-content chat-modal-content">
+            <div class="modal-header chat-header">
+                <div class="chat-header-title">
+                    <i class="fas fa-comments"></i>
+                    <h2>Group Chat</h2>
+                </div>
+                <button class="close-modal-btn"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body chat-body">
+                <!-- Join Chat Form -->
+                <div id="joinChatForm" class="join-chat-form">
+                    <h3>Join Group Chat</h3>
+                    <div class="form-group">
+                        <label for="chatUsername">Choose a username</label>
+                        <input type="text" id="chatUsername" class="form-input" placeholder="Enter your username">
+                    </div>
+                    <button id="joinChatBtn" class="join-chat-btn">Join Chat</button>
+                </div>
+
+                <!-- Chat Interface (hidden initially) -->
+                <div id="chatInterface" class="chat-interface hidden">
+                    <!-- Messages Container -->
+                    <div id="messagesContainer" class="messages-container">
+                        <!-- Messages will be inserted here -->
+                    </div>
+                    
+                    <!-- Message Input Form -->
+                    <div class="message-input-container">
+                        <form id="messageForm">
+                            <input type="text" id="messageInput" class="form-input" placeholder="Type a message...">
+                            <button type="submit" id="sendMessageBtn" class="send-message-btn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather Modal -->
+    <div id="weatherModal" class="modal hidden">
+        <div class="modal-content weather-modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-cloud-sun"></i> Weather Report</h2>
+                <button class="close-modal-btn" id="closeWeatherModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body" id="weatherModalBody">
+                <div class="weather-loading">Loading weather...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""></script>
+    <!-- Leaflet Routing Machine -->
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Pass shared token from server to client
+        window.sharedToken = '<%= sharedToken %>';
+        
+        // Pass join group data if available
+        <%- joinGroup ? `window.joinGroup = {
+                id: '${joinGroup.id}',
+                name: '${joinGroup.name}'
+            };` : 'window.joinGroup = null;' %>
+    </script>
+    <script src="/js/script.js"></script>
+    <!-- Custom Scripts -->
+    <script src="/js/chat-launcher.js"></script>
+    <script src="/js/chatbox.js"></script>
+    <script src="/js/particles.js"></script>
+
+    <footer>
+        <p><span class="footer-made-by">Made by</span> <br> Akash Yadav : 23306A1026 & Gaurav Shinde : 23306A1028</p>
+    </footer>
+</body>
+</html>
